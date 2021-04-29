@@ -48,9 +48,15 @@ function! s:runner.run(commands, input, session) abort
   let self._key = a:session.continue()
   let prev_window = s:VT.trace_window()
 
-  " If we can determine the previous buffer, use the buffer. If there are no
-  " buffer or multiple buffers found, simply create a new buffer.
-  let qrwinnr = bufwinnr(bufnr('quickrun'))
+  " Find the first quickrun buffer in the current tabpage.
+  let qrwinnr = -1
+  for wnr in range(1, winnr('$'))
+    " FIXME: hack
+    if bufname(winbufnr(wnr))[0:8] ==# 'quickrun:'
+      let qrwinnr = wnr
+      break
+    endif
+  endfor
   if qrwinnr >= 0
     execute qrwinnr . 'wincmd w'
   else
